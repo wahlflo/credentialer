@@ -1,5 +1,4 @@
 [![Build](https://github.com/wahlflo/credentialer/actions/workflows/build.yml/badge.svg?branch=main&event=push)](https://github.com/wahlflo/credentialer/actions/workflows/build.yml)
-
 [![Tests](https://github.com/wahlflo/credentialer/actions/workflows/unittests.yml/badge.svg?branch=main&event=push)](https://github.com/wahlflo/credentialer/actions/workflows/unittests.yml)
 
 # Credentialer
