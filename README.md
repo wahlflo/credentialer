@@ -81,11 +81,15 @@ It would be perfect if you also can add a pull-request in case you are capable t
 
 ## Installation
 
+Install directly from GitHub:
+```sh
+go install -v github.com/wahlflo/credentialer@latest
+```
 
 ## Usage
 use the ``-help`` flag to view the available parameters:
 ```
-> ./credentialer.bin -help
+> credentialer.exe -help
 Usage of credentialer.bin:
   -failed-log string
         log files, which could not be scanned, to a file
@@ -118,7 +122,7 @@ The default output for the findings is the console but it can also be redirected
 ### Example 1
 Scan a directory and print out the findings on stdout
 ```
-> ./credentialer.bin -i repo
+> credentialer.exe -i repo
 [+] start 18 processes to scan for credentials
 [+] start loading files which should be scanned
 [+] loading files which should be scanned finished
@@ -143,7 +147,7 @@ Location: pkg\detectors\regex\patterns\command_line_parameters\mysql_test.go
 Scan a directory and write logs to files:
 
 ```
-> ./credentialer.bin -i repo -format json -o findings.txt -success-log success.txt -failed-log fails.txt
+> credentialer.exe -i repo -format json -o findings.txt -success-log success.txt -failed-log fails.txt
 [+] start loading files which should be scanned
 [+] loading files which should be scanned finished
 [+] logging scanned files to: success.txt
@@ -163,7 +167,7 @@ Scan a directory and write logs to files:
 Resume a paused / interrupted scan:
 
 ```
-> ./credentialer.bin -i repo -format json -o findings.txt -success-log success.txt -failed-log fails.txt --resume .\success.txt
+> credentialer.exe -i repo -format json -o findings.txt -success-log success.txt -failed-log fails.txt --resume .\success.txt
 [+] load previous scanned files from file: .\success.txt
 [+] loaded 81 previous scanned files
 [+] logging scanned files to: success.txt
@@ -181,10 +185,12 @@ Resume a paused / interrupted scan:
 If you want to use the project in your project you can add the module to your project:
 
 ```sh
-go mod github.com/wahlflo/Credentialer
+go get github.com/wahlflo/credentialer@latest
 ```
 
 ```go
+package main
+
 import "github.com/wahlflo/credentialer/pkg"
 
 func main(){
