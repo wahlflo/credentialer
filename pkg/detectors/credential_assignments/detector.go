@@ -20,7 +20,7 @@ func (detector *CredentialAssignmentDetector) Check(output interfaces.OutputForm
 		output.AddFinding(interfaces.FindingInstance{
 			File:                    fileToCheck,
 			Name:                    "Credential Assignments",
-			Value:                   finding.value,
+			Value:                   finding.fullMatch,
 			ContainsValue:           true,
 			IsCompleteFileImportant: false,
 			Priority:                interfaces.FindingPriorityMedium,

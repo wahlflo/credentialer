@@ -61,6 +61,17 @@ AWS_SECRET_KEY = "asdasd";
 	require.Equal(t, 1, len(matches))
 }
 
+func Test_getFindingsForVariableName_Case04(t *testing.T) {
+	testContent := `
+password = ABC123
+`
+	matches := getFindings("", []byte(testContent))
+
+	require.Equal(t, 1, len(matches))
+	require.Equal(t, "password", matches[0].variableName)
+	require.Equal(t, "ABC123", matches[0].value)
+}
+
 func Test_getFindings_negative_1(t *testing.T) {
 	testContent := `
 your password is ABC123
