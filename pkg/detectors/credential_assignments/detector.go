@@ -114,5 +114,26 @@ func fineTuningApprovesFinding(fileExtension string, f *finding) bool {
 		return false
 	}
 
+	if findingContainsExcludedPhrase(f) {
+		return false
+	}
+
+	return true
+}
+
+func findingContainsExcludedPhrase(f *finding) bool {
+	stopWords := []string{
+		"password",
+		"placeholder",
+		"secret",
+		"_key",
+		"username",
+	}
+	foundValueInLowerCase := strings.ToLower(f.value)
+	for _, stopWord := range stopWords {
+		if strings.Contains(foundValueInLowerCase, stopWord) {
+			return false
+		}
+	}
 	return true
 }
