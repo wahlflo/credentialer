@@ -15,7 +15,7 @@ Also, the tool allows to resume paused scans.
 
 - Credential Assignments in Code: 
   - Examples: ``password:= "ABC129"`` or ``let mut password = String::from("Hallo");``
-  - detection based on file extensions, e.g. ``.go`` for Golang language
+  - detection patterns based on file extensions, e.g. ``.go`` for Golang language
 - File names which indicate that file contains sensitive information
   - Examples: ``cert.key`` or ``myFile.private``
 - Alerting on password vaults and key storage files
