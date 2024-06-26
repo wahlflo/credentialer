@@ -112,3 +112,26 @@ AWS_ACCESS_KEY_ID=asASIAIOSFODNN7EXAMPLE
 	matches := pattern.GetMatches("", []byte(testContent))
 	require.Equal(t, 0, len(matches))
 }
+
+func Test_AwsSecretKey_positive(t *testing.T) {
+	testContent := `
+"123456789+123456789+123456789+123456789+"
+'0000000000000000000000000000000000000000'
+= 8d75008285babd33fd02e4160a6b1232d9521566
+: 8d75008285babd33fd02e4160a6b1232d9521566
+`
+	pattern := AwsSecretKey()
+	matches := pattern.GetMatches("", []byte(testContent))
+	require.Equal(t, 4, len(matches))
+}
+
+func Test_AwsSecretKey_negative(t *testing.T) {
+	testContent := `
+123456789+123456789+123456789+123456789+
+0000000000000000000000000000000000000000
+8d75008285babd33fd02e4160a6b1232d9521566
+`
+	pattern := AwsSecretKey()
+	matches := pattern.GetMatches("", []byte(testContent))
+	require.Equal(t, 0, len(matches))
+}
