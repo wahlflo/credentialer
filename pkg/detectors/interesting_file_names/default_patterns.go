@@ -5,8 +5,6 @@ import (
 	"regexp"
 )
 
-// TODO Unit test
-
 func loadDefaultPatterns() []Pattern {
 	patterns := make([]Pattern, 0)
 
@@ -31,7 +29,7 @@ func loadDefaultPatterns() []Pattern {
 	patterns = append(patterns, &pattern{
 		regexPattern: regexp.MustCompile("\\.env$"),
 		fileType:     "File with extension .env containing maybe sensitive information",
-		priority:     interfaces.FindingPriorityHigh,
+		priority:     interfaces.FindingPriorityMedium,
 	})
 
 	patterns = append(patterns, &pattern{
@@ -55,7 +53,7 @@ func loadDefaultPatterns() []Pattern {
 	patterns = append(patterns, &pattern{
 		regexPattern: regexp.MustCompile("\\.htaaccess$"),
 		fileType:     "File with extension .htaaccess$ containing maybe sensitive information",
-		priority:     interfaces.FindingPriorityMedium,
+		priority:     interfaces.FindingPriorityLow,
 	})
 
 	patterns = append(patterns, &pattern{
