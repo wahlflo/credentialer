@@ -43,13 +43,13 @@ func loadDefaultPatterns() []Pattern {
 	patterns = append(patterns, &pattern{
 		regexPattern: regexp.MustCompile("\\.conf$"),
 		fileType:     "File with extension .conf containing maybe sensitive information",
-		priority:     interfaces.FindingPriorityLow,
+		priority:     interfaces.FindingPriorityInformative,
 	})
 
 	patterns = append(patterns, &pattern{
 		regexPattern: regexp.MustCompile("\\.config$"),
 		fileType:     "File with extension .config containing maybe sensitive information",
-		priority:     interfaces.FindingPriorityLow,
+		priority:     interfaces.FindingPriorityInformative,
 	})
 
 	patterns = append(patterns, &pattern{
