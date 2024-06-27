@@ -4,11 +4,10 @@ var interestingVariableNames = []string{
 	"password",
 	"secret",
 	"token",
-	"access_token",
 	"pwd",
 	"pass",
 	"passwd",
-	"key",
+	//	"key",		<- generates too many false positives, ToDo: ignore this until Machine Learning model is integrated
 	"пароль",   // Russian for password
 	"passwort", // German for password
 }
