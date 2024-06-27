@@ -20,7 +20,7 @@ func (detector *CredentialAssignmentDetector) Check(output interfaces.OutputForm
 		output.AddFinding(interfaces.FindingInstance{
 			File:                    fileToCheck,
 			Name:                    "Credential Assignments",
-			Value:                   finding.value,
+			Value:                   finding.fullMatch,
 			ContainsValue:           true,
 			IsCompleteFileImportant: false,
 			Priority:                interfaces.FindingPriorityMedium,
@@ -78,6 +78,10 @@ type finding struct {
 func getFindings(fileExtension string, content []byte) []*finding {
 	findings := make([]*finding, 0)
 
+	if fileExtension == ".sample" {
+		return findings
+	}
+
 	for _, p := range getRegexPatterns() {
 		patternMatches := p.regexExpression.FindAllStringSubmatch(string(content), -1)
 		for _, match := range patternMatches {
@@ -88,31 +92,11 @@ func getFindings(fileExtension string, content []byte) []*finding {
 				usedRegex:    p.regexExpression.String(),
 			}
 
-			if fineTuningApprovesFinding(fileExtension, f) {
+			if fineTuningApprovesFinding(fileExtension, f.variableName, f.value) {
 				findings = append(findings, f)
 			}
 		}
 	}
 
 	return findings
-}
-
-func fineTuningApprovesFinding(fileExtension string, f *finding) bool {
-	if strings.HasPrefix(f.value, "$") {
-		return false
-	}
-
-	// ensure that the value in a code file starts with " or '
-	if _, isCodeFile := sourceCodeFileExtensions[fileExtension]; isCodeFile {
-		if !strings.HasPrefix(f.value, "'") && !strings.HasPrefix(f.value, "\"") {
-			return false
-		}
-	}
-
-	// ignore environment placeholder like: GitHubToken: {{GITHUB_TOKEN}}
-	if strings.HasPrefix(f.value, "{{") && strings.HasSuffix(f.value, "}}") {
-		return false
-	}
-
-	return true
 }
