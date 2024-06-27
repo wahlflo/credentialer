@@ -21,6 +21,10 @@ func CheckForExcludedSecretValues(fileExtension string, variableName string, sec
 		return false
 	}
 
+	if strings.ToLower(unwrappedSecret) == "true" || strings.ToLower(unwrappedSecret) == "false" {
+		return false
+	}
+
 	stopWords := []string{
 		"password",
 		"placeholder",
@@ -32,10 +36,12 @@ func CheckForExcludedSecretValues(fileExtension string, variableName string, sec
 		"keyfile",
 		"dummy",
 		"env.",
+		"var.",
 		"params.",
 		"request.headers",
 		"changeit",
 		"changeme",
+		"keystore",
 	}
 	if stringContainsExcludedPhrase(secretValue, stopWords) {
 		return false

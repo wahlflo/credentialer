@@ -24,6 +24,7 @@ var sourceCodeFileExtensions = map[string]struct{}{
 	".js":    {},
 	".jsx":   {},
 	".ps1":   {},
+	".xml":   {},
 }
 
 func CheckProperStringInitialization(fileExtension string, variableName string, secretValue string) bool {

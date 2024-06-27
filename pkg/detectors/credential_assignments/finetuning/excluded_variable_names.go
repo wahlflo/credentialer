@@ -20,6 +20,7 @@ func CheckForExcludedVariableNames(fileExtension string, variableName string, se
 	stopWords := []string{
 		"keyword",
 		"public",
+		"tokenizer",
 	}
 	if stringContainsExcludedPhrase(variableName, stopWords) {
 		return false
