@@ -26,6 +26,8 @@ func CheckForExcludedVariableNames(fileExtension string, variableName string, se
 		"rule",
 		"secret_name",
 		"secretname",
+		"compass",
+		"bypass",
 	}
 	if stringContainsExcludedPhrase(variableName, stopWords) {
 		return false
