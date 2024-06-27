@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 type CredentialAssignmentDetector struct {
@@ -85,6 +86,12 @@ func getFindings(fileExtension string, content []byte) []*finding {
 	for _, p := range getRegexPatterns() {
 		patternMatches := p.regexExpression.FindAllStringSubmatch(string(content), -1)
 		for _, match := range patternMatches {
+
+			// check if credential assignments contains only valid UTF8 characters
+			if !utf8.ValidString(match[0]) {
+				continue
+			}
+
 			f := &finding{
 				fullMatch:    match[0],
 				variableName: match[p.variableGroup],

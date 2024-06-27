@@ -21,6 +21,9 @@ func CheckForExcludedVariableNames(fileExtension string, variableName string, se
 		"keyword",
 		"public",
 		"tokenizer",
+		"policies",
+		"policy",
+		"rule",
 	}
 	if stringContainsExcludedPhrase(variableName, stopWords) {
 		return false
