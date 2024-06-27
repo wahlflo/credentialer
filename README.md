@@ -1,5 +1,7 @@
 [![Build](https://github.com/wahlflo/credentialer/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/wahlflo/credentialer/actions/workflows/build.yml)
 [![Tests](https://github.com/wahlflo/credentialer/actions/workflows/unittests.yml/badge.svg?event=push)](https://github.com/wahlflo/credentialer/actions/workflows/unittests.yml)
+![Static Badge](https://img.shields.io/badge/Status-Alpha-blue)
+
 
 # Credentialer
 
