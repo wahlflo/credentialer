@@ -12,6 +12,12 @@ hardcoded credentials etc.
 The output format of the tool can be set to ``json`` or ``csv`` which allows easy post-processing.
 Also, the tool allows to resume paused scans. 
 
+As it is hard to distinguish between real passwords and nonsense and placeholders 
+the tool is implemented in such a way that it rather generates a false positive 
+than ignoring a real password.
+It is advisable to take a closer look at the tool output and filter out 
+any obvious false positives if necessary
+
 
 ## Detectors
 
