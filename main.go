@@ -70,7 +70,7 @@ func (o *appOptions) parse() error {
 	if o.largeLanguageModel != "ollama" && o.ollamaUrl != "http://127.0.0.1:11434" {
 		return errors.New("[!] the option -ollama-url can only be specified if the ollama LLM is used")
 	}
-	if o.largeLanguageModel != "ollama" && o.ollamaSessions != 3 {
+	if o.largeLanguageModel != "ollama" && o.ollamaSessions != 1 {
 		return errors.New("[!] the option -ollama-sessions can only be specified if the ollama LLM is used")
 	}
 
