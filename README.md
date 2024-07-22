@@ -114,10 +114,12 @@ Usage of credentialer.bin:
         don't use ANSI escape color codes in output
   -o string
         output file where findings will be stored, default is standard output
+  -ollama-model string
+        name of the model which should be used, default is llama3
   -ollama-sessions int
         number of concurrent sessions, default is 1 (default 1)
   -ollama-url string
-        URL of the ollama LLM, default value is http://127.0.0.1:11434 (default "http://127.0.0.1:11434")
+        URL of the ollama LLM, default value is http://127.0.0.1:11434 (default "http://127.0.0.1:11434")        
   -resume string
         resume scan based on file containing already scanned files
   -s    suppress info messages for a clearer output
@@ -220,7 +222,7 @@ To advise ``Credentialer`` to use it you have to specify the flags ``-llm ollama
 
 Example with the default settings:
 ```sh
-credentialer.exe -i repo -llm ollama -ollama-sessions 1 -ollama-url "http://127.0.0.1:11434"
+credentialer.exe -i repo -llm ollama -ollama-sessions 1 -ollama-url "http://127.0.0.1:11434" -ollama-model llama3 
 ```
 
 **Hint**: the LLM is much master if you can give the docker container access to your GPU. 
