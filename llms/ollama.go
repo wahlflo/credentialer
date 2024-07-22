@@ -18,14 +18,16 @@ type ollamaConnector struct {
 	mutex                   *sync.Mutex
 	currentNumberOfSessions int
 	maximumNumberOfSessions int
+	model                   string
 }
 
-func NewOllamaConnector(addressOfService string, maximumNumberOfSessions int) LlmConnector {
+func NewOllamaConnector(addressOfService string, maximumNumberOfSessions int, model string) LlmConnector {
 	return &ollamaConnector{
 		addressOfService:        addressOfService,
 		mutex:                   &sync.Mutex{},
 		currentNumberOfSessions: 0,
 		maximumNumberOfSessions: maximumNumberOfSessions,
+		model:                   model,
 	}
 }
 
@@ -63,7 +65,7 @@ func (connector *ollamaConnector) GetBooleanResponse(prompt string) (bool, error
 	start := time.Now()
 
 	body := map[string]interface{}{
-		"model":      "llama3",
+		"model":      connector.model,
 		"prompt":     prompt,
 		"stream":     false,
 		"keep_alive": "1m",

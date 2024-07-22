@@ -36,6 +36,7 @@ type appOptions struct {
 	optionLogFilesWhichCouldNotBeScanned string
 	largeLanguageModel                   string
 	ollamaUrl                            string
+	ollamaModel                          string
 	ollamaSessions                       int
 }
 
@@ -52,6 +53,7 @@ func (o *appOptions) parse() error {
 	flag.StringVar(&o.largeLanguageModel, "llm", "none", "which large language model should be used for fine tuning, possible options: [none, ollama], default is none")
 	flag.StringVar(&o.ollamaUrl, "ollama-url", "http://127.0.0.1:11434", "URL of the ollama LLM, default value is http://127.0.0.1:11434")
 	flag.IntVar(&o.ollamaSessions, "ollama-sessions", 1, "number of concurrent sessions, default is 1")
+	flag.StringVar(&o.ollamaModel, "ollama-model", "llama3", "name of the model which should be used, default is llama3")
 	flag.BoolVar(&o.debug, "debug", false, "displays debug information")
 	flag.Parse()
 
@@ -67,11 +69,16 @@ func (o *appOptions) parse() error {
 		return err
 	}
 
-	if o.largeLanguageModel != "ollama" && o.ollamaUrl != "http://127.0.0.1:11434" {
-		return errors.New("[!] the option -ollama-url can only be specified if the ollama LLM is used")
-	}
-	if o.largeLanguageModel != "ollama" && o.ollamaSessions != 1 {
-		return errors.New("[!] the option -ollama-sessions can only be specified if the ollama LLM is used")
+	if o.largeLanguageModel != "ollama" {
+		if o.ollamaUrl != "http://127.0.0.1:11434" {
+			return errors.New("[!] the option -ollama-url can only be specified if the ollama LLM is used")
+		}
+		if o.ollamaSessions != 1 {
+			return errors.New("[!] the option -ollama-sessions can only be specified if the ollama LLM is used")
+		}
+		if o.ollamaModel != "llama3" {
+			return errors.New("[!] the option -ollama-model can only be specified if the ollama LLM is used")
+		}
 	}
 
 	return nil
@@ -226,7 +233,7 @@ func createLlmConnector(options *appOptions) (interfaces.LlmConnector, error) {
 	}
 
 	if options.largeLanguageModel == "ollama" {
-		connector := llms.NewOllamaConnector(options.ollamaUrl, options.ollamaSessions)
+		connector := llms.NewOllamaConnector(options.ollamaUrl, options.ollamaSessions, options.ollamaModel)
 		return connector, connector.CheckConnection()
 	}
 
