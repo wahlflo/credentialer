@@ -61,16 +61,22 @@ var BasicPattern = []patterns.Pattern{
 
 type Detector struct {
 	patterns []patterns.Pattern
+	llm      interfaces.LlmConnector
 }
 
 func NewRegexDetector() *Detector {
 	return &Detector{
 		patterns: BasicPattern,
+		llm:      nil,
 	}
 }
 
 func (detector *Detector) AddPattern(pattern patterns.Pattern) {
 	detector.patterns = append(detector.patterns, pattern)
+}
+
+func (detector *Detector) Inject(llm interfaces.LlmConnector) {
+	detector.llm = llm
 }
 
 func (detector *Detector) Check(output interfaces.OutputFormatter, fileToCheck interfaces.LoadedFile) error {
@@ -85,7 +91,7 @@ func (detector *Detector) checkPattern(output interfaces.OutputFormatter, fileTo
 		// only allow valid UFT8 string to minimize the false positive rate
 		if utf8.ValidString(match) {
 			finding := detector.createFindingOnMatch(fileToCheck, pattern, match)
-			finding = pattern.PerformQualityCheck(finding)
+			finding = pattern.PerformQualityCheck(finding, fileToCheck, detector.llm)
 			if finding != nil {
 				output.AddFinding(finding)
 			}

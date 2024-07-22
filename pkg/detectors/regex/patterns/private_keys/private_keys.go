@@ -19,8 +19,7 @@ func PrivateKeyGeneric() patterns.Pattern {
 	return pattern
 }
 
-func privateKeyQualityCheck(originalFinding interfaces.Finding) interfaces.Finding {
-
+func privateKeyQualityCheck(originalFinding interfaces.Finding, fileToCheck interfaces.LoadedFile, llm interfaces.LlmConnector) interfaces.Finding {
 	// Lower Priority for encrypted Private Keys
 	if strings.Contains(originalFinding.GetValue(), "ENCRYPTED") {
 		return interfaces.FindingInstance{

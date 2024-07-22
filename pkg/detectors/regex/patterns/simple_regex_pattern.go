@@ -14,7 +14,7 @@ type SimpleRegexPattern struct {
 	RegexPattern []*RegexExpression
 	PatternName  string
 	Priority     interfaces.FindingPriority
-	QualityCheck func(originalFinding interfaces.Finding) interfaces.Finding
+	QualityCheck func(originalFinding interfaces.Finding, fileToCheck interfaces.LoadedFile, llm interfaces.LlmConnector) interfaces.Finding
 }
 
 func NewSimpleRegexPattern(patternName string, priority interfaces.FindingPriority) *SimpleRegexPattern {
@@ -33,14 +33,14 @@ func (pattern *SimpleRegexPattern) AddRegexPattern(regexPattern *regexp.Regexp, 
 	})
 }
 
-func (pattern *SimpleRegexPattern) PerformQualityCheck(originalFinding interfaces.Finding) interfaces.Finding {
+func (pattern *SimpleRegexPattern) PerformQualityCheck(originalFinding interfaces.Finding, fileToCheck interfaces.LoadedFile, llm interfaces.LlmConnector) interfaces.Finding {
 	if pattern.QualityCheck == nil {
 		return originalFinding
 	}
-	return pattern.QualityCheck(originalFinding)
+	return pattern.QualityCheck(originalFinding, fileToCheck, llm)
 }
 
-func (pattern *SimpleRegexPattern) SetQualityCheck(qualityCheck func(originalFinding interfaces.Finding) interfaces.Finding) {
+func (pattern *SimpleRegexPattern) SetQualityCheck(qualityCheck func(originalFinding interfaces.Finding, fileToCheck interfaces.LoadedFile, llm interfaces.LlmConnector) interfaces.Finding) {
 	pattern.QualityCheck = qualityCheck
 }
 

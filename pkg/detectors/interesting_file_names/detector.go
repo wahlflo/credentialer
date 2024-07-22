@@ -14,6 +14,10 @@ func NewInterestingFilenameDetector() *InterestingFilenameDetector {
 	}
 }
 
+func (detector *InterestingFilenameDetector) Inject(llm interfaces.LlmConnector) {
+	// LLM is not useful for this detector
+}
+
 func (detector *InterestingFilenameDetector) ClearPatterns() {
 	detector.patterns = make([]Pattern, 0)
 }

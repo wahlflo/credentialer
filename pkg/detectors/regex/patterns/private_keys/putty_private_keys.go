@@ -14,7 +14,7 @@ func PuttyPrivateKeys() patterns.Pattern {
 	return pattern
 }
 
-func puttyPrivateKeyQualityCheck(originalFinding interfaces.Finding) interfaces.Finding {
+func puttyPrivateKeyQualityCheck(originalFinding interfaces.Finding, fileToCheck interfaces.LoadedFile, llm interfaces.LlmConnector) interfaces.Finding {
 	if strings.Contains(originalFinding.GetValue(), "Encryption: none") {
 		return originalFinding
 	}
