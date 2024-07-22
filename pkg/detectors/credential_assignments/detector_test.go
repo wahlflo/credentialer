@@ -19,7 +19,7 @@ password: ABC128
 password:= "ABC129"
 let mut password = String::from("Hallo");		// is picked up by two different expressions
 `
-	matches := getFindings("", []byte(testContent))
+	matches := getFindings("", []byte(testContent), nil)
 
 	for _, match := range matches {
 		fmt.Println(match.usedRegex)
@@ -34,7 +34,7 @@ func Test_getFindings_Case02_Rust(t *testing.T) {
 	testContent := `
 let mut password = String::from("Hallo");
 `
-	matches := getFindings(".rs", []byte(testContent))
+	matches := getFindings(".rs", []byte(testContent), nil)
 
 	for _, match := range matches {
 		fmt.Println(match.usedRegex)
@@ -48,7 +48,7 @@ func Test_getFindings_Case03(t *testing.T) {
 	testContent := `
 AWS_SECRET_KEY = "asdasd";
 `
-	matches := getFindings(".py", []byte(testContent))
+	matches := getFindings(".py", []byte(testContent), nil)
 
 	for _, match := range matches {
 		fmt.Println(match.usedRegex)
@@ -64,7 +64,7 @@ func Test_getFindings_Case04(t *testing.T) {
 	testContent := `
 password = ABC123
 `
-	matches := getFindings("", []byte(testContent))
+	matches := getFindings("", []byte(testContent), nil)
 
 	require.Equal(t, 1, len(matches))
 	require.Equal(t, "password", matches[0].variableName)
@@ -76,7 +76,7 @@ func Test_getFindings_negative_1(t *testing.T) {
 your password is ABC123
 token = $o->{clock};
 `
-	matches := getFindings(".ps1", []byte(testContent))
+	matches := getFindings(".ps1", []byte(testContent), nil)
 
 	require.Equal(t, 0, len(matches))
 }
@@ -85,7 +85,7 @@ func Test_getFindings_negative_placeholder(t *testing.T) {
 	testContent := `
 "https://maps.googleapis.com/maps/api/js?Apikey=YOUR_API_KEY&callback=initMap"
 `
-	matches := getFindings("", []byte(testContent))
+	matches := getFindings("", []byte(testContent), nil)
 	require.Equal(t, 0, len(matches))
 }
 

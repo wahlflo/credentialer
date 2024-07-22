@@ -105,5 +105,5 @@ func puttyKeysEnsureProperPriority(t *testing.T, testData string, priority inter
 		Priority: interfaces.FindingPriorityHigh,
 	}
 
-	require.Equal(t, priority, puttyPrivateKeyQualityCheck(finding).GetFindingPriority())
+	require.Equal(t, priority, puttyPrivateKeyQualityCheck(finding, nil, nil).GetFindingPriority())
 }

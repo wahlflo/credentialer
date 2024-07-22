@@ -114,7 +114,7 @@ LWdlbmVyYXRlZC1rZXkBAgME
 	matches := pattern.GetMatches("", []byte(testContent))
 	require.Equal(t, 1, len(matches))
 
-	require.Equal(t, privateKeyQualityCheck(createTestFinding(testContent)).GetFindingPriority(), interfaces.FindingPriorityHigh)
+	require.Equal(t, privateKeyQualityCheck(createTestFinding(testContent), nil, nil).GetFindingPriority(), interfaces.FindingPriorityHigh)
 
 	privateKeysEnsureProperPriority(t, testContent, interfaces.FindingPriorityHigh)
 }
@@ -146,5 +146,5 @@ func privateKeysEnsureProperPriority(t *testing.T, testData string, priority int
 		Priority: interfaces.FindingPriorityHigh,
 	}
 
-	require.Equal(t, priority, privateKeyQualityCheck(finding).GetFindingPriority())
+	require.Equal(t, priority, privateKeyQualityCheck(finding, nil, nil).GetFindingPriority())
 }
