@@ -54,6 +54,10 @@ func (detector *MagicByteDetector) AddPattern(pattern Pattern) {
 	detector.patterns = append(detector.patterns, pattern)
 }
 
+func (detector *MagicByteDetector) Inject(llm interfaces.LlmConnector) {
+	// LLM is not useful for this detector
+}
+
 func (detector *MagicByteDetector) Check(output interfaces.OutputFormatter, fileToCheck interfaces.LoadedFile) error {
 	for _, pattern := range detector.patterns {
 		detector.checkPattern(output, fileToCheck, pattern)

@@ -15,9 +15,10 @@ type Scanner struct {
 	detectors               []interfaces.Detector
 	numberOfFiledScanned    safeCounter
 	numberOfScannersRunning safeCounter
+	llm                     interfaces.LlmConnector
 }
 
-func NewScanner(queuedFiles chan interfaces.File, output interfaces.OutputFormatter) *Scanner {
+func NewScanner(queuedFiles chan interfaces.File, output interfaces.OutputFormatter, llm interfaces.LlmConnector) *Scanner {
 	return &Scanner{
 		queuedFiles:  queuedFiles,
 		scannedFiles: nil,
@@ -25,6 +26,7 @@ func NewScanner(queuedFiles chan interfaces.File, output interfaces.OutputFormat
 		loadedFiles:  make(chan interfaces.LoadedFile, 20),
 		detectors:    make([]interfaces.Detector, 0),
 		output:       output,
+		llm:          llm,
 	}
 }
 
@@ -52,9 +54,16 @@ func (scanner *Scanner) AddDetector(detector interfaces.Detector) {
 
 // StartScanning starts the scanning routine.
 func (scanner *Scanner) StartScanning(numberOfParallelScanners int) {
+	scanner.injectLargeLanguageModelIntoScanner()
 	scanner.numberOfFiledScanned.Set(0)
 	go scanner.preloadFilesLoop()
 	scanner.startScanLoops(numberOfParallelScanners)
+}
+
+func (scanner *Scanner) injectLargeLanguageModelIntoScanner() {
+	for _, x := range scanner.detectors {
+		x.Inject(scanner.llm)
+	}
 }
 
 func (scanner *Scanner) preloadFilesLoop() {

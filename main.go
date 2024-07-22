@@ -5,11 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/wahlflo/credentialer/llms"
 	"github.com/wahlflo/credentialer/pkg"
 	"github.com/wahlflo/credentialer/pkg/detectors"
 	"github.com/wahlflo/credentialer/pkg/interfaces"
 	"github.com/wahlflo/credentialer/pkg/output_formatters"
 	"io/fs"
+	"log"
+	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
@@ -27,9 +30,13 @@ type appOptions struct {
 	showHelp                             bool
 	silent                               bool
 	noColor                              bool
+	debug                                bool
 	optionResumeFromFile                 string
 	optionLogScannedFiles                string
 	optionLogFilesWhichCouldNotBeScanned string
+	largeLanguageModel                   string
+	ollamaUrl                            string
+	ollamaSessions                       int
 }
 
 func (o *appOptions) parse() error {
@@ -40,8 +47,12 @@ func (o *appOptions) parse() error {
 	flag.BoolVar(&o.silent, "s", false, "suppress info messages for a clearer output")
 	flag.BoolVar(&o.noColor, "no-color", false, "don't use ANSI escape color codes in output")
 	flag.StringVar(&o.optionResumeFromFile, "resume", "", "resume scan based on file containing already scanned files")
-	flag.StringVar(&o.optionLogScannedFiles, "success-log", "", "log scanned files to a file, needed when you want to resume a paused scan")
-	flag.StringVar(&o.optionLogFilesWhichCouldNotBeScanned, "failed-log", "", "log files, which could not be scanned, to a file")
+	flag.StringVar(&o.optionLogScannedFiles, "success-logMessage", "", "logMessage scanned files to a file, needed when you want to resume a paused scan")
+	flag.StringVar(&o.optionLogFilesWhichCouldNotBeScanned, "failed-logMessage", "", "logMessage files, which could not be scanned, to a file")
+	flag.StringVar(&o.largeLanguageModel, "llm", "none", "which large language model should be used for fine tuning, possible options: [none, ollama], default is none")
+	flag.StringVar(&o.ollamaUrl, "ollama-url", "http://127.0.0.1:11434", "URL of the ollama LLM, default value is http://127.0.0.1:11434")
+	flag.IntVar(&o.ollamaSessions, "ollama-sessions", 1, "number of concurrent sessions, default is 1")
+	flag.BoolVar(&o.debug, "debug", false, "displays debug information")
 	flag.Parse()
 
 	outputFile, err := o.parseFindingDestination()
@@ -55,6 +66,14 @@ func (o *appOptions) parse() error {
 	if err := o.ensureThatOptionPathToDirectoryIsValid(); err != nil {
 		return err
 	}
+
+	if o.largeLanguageModel != "ollama" && o.ollamaUrl != "http://127.0.0.1:11434" {
+		return errors.New("[!] the option -ollama-url can only be specified if the ollama LLM is used")
+	}
+	if o.largeLanguageModel != "ollama" && o.ollamaSessions != 3 {
+		return errors.New("[!] the option -ollama-sessions can only be specified if the ollama LLM is used")
+	}
+
 	return nil
 }
 
@@ -111,7 +130,7 @@ func exitWithError(err error) {
 	os.Exit(1)
 }
 
-func log(silent bool, message string) {
+func logMessage(silent bool, message string) {
 	if !silent {
 		fmt.Println("[+] " + message)
 	}
@@ -201,24 +220,56 @@ func (receiver file) GetFilepath() string {
 	return receiver.filepath
 }
 
+func createLlmConnector(options *appOptions) (interfaces.LlmConnector, error) {
+	if options.largeLanguageModel == "none" {
+		return nil, nil
+	}
+
+	if options.largeLanguageModel == "ollama" {
+		connector := llms.NewOllamaConnector(options.ollamaUrl, options.ollamaSessions)
+		return connector, connector.CheckConnection()
+	}
+
+	return nil, errors.New("invalid value for -llm, see help for possible values")
+}
+
 func main() {
 	options := appOptions{}
 	if err := options.parse(); err != nil {
 		exitWithError(err)
 	}
 
+	if options.debug {
+		logMessage(options.silent, "debug messages will be displayed")
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+	} else {
+		slog.SetLogLoggerLevel(slog.LevelWarn)
+	}
+
+	llmConnector, err := createLlmConnector(&options)
+	if err != nil {
+		color.Red("[!] fatal error while setting up connector to LLM: " + err.Error())
+		color.Red("[!] exiting due error")
+		os.Exit(1)
+	}
+
+	if llmConnector != nil {
+		logMessage(options.silent, "a Large Language Model is used for pre-filtering the findings")
+	}
+
 	outputFormat := options.parsedOutputFormat
 
 	alreadyPreviousScannedFiles := make(map[string]struct{})
 	if options.optionResumeFromFile != "" {
-		log(options.silent, "load previous scanned files from file: "+options.optionResumeFromFile)
+		logMessage(options.silent, "load previous scanned files from file: "+options.optionResumeFromFile)
 		alreadyPreviousScannedFiles = loadAlreadyPreviousScannedFiles(options.optionResumeFromFile)
-		log(options.silent, "loaded "+fmt.Sprint(len(alreadyPreviousScannedFiles))+" previous scanned files")
+		logMessage(options.silent, "loaded "+fmt.Sprint(len(alreadyPreviousScannedFiles))+" previous scanned files")
 	}
 
 	fileQueue := make(chan interfaces.File, 15000000)
 	go func() {
-		log(options.silent, "start loading files which should be scanned")
+		logMessage(options.silent, "start loading files which should be scanned")
 		err := filepath.WalkDir(options.pathToDirectory, func(s string, d fs.DirEntry, err error) error {
 			if err != nil {
 				color.Red("[!] fatal error while crawling directory: " + err.Error())
@@ -244,27 +295,27 @@ func main() {
 			os.Exit(1)
 		}
 		close(fileQueue)
-		log(options.silent, "loading files which should be scanned finished")
+		logMessage(options.silent, "loading files which should be scanned finished")
 	}()
 
-	scanner := pkg.NewScanner(fileQueue, outputFormat)
+	scanner := pkg.NewScanner(fileQueue, outputFormat, llmConnector)
 	for _, detector := range detectors.LoadBasicDetectors() {
 		scanner.AddDetector(detector)
 	}
 
 	if options.optionLogScannedFiles != "" {
-		log(options.silent, "logging scanned files to: "+options.optionLogScannedFiles)
+		logMessage(options.silent, "logging scanned files to: "+options.optionLogScannedFiles)
 		scanner.SetOptionLogScannedFiles()
 		go logScannedFiles(scanner, options.optionLogScannedFiles)
 	}
 	if options.optionLogFilesWhichCouldNotBeScanned != "" {
-		log(options.silent, "logging scanned files which could not be scanned to: "+options.optionLogFilesWhichCouldNotBeScanned)
+		logMessage(options.silent, "logging scanned files which could not be scanned to: "+options.optionLogFilesWhichCouldNotBeScanned)
 		scanner.SetOptionLogFilesWhichCouldNotBeScanned()
 		go logFilesWithError(scanner, options.optionLogFilesWhichCouldNotBeScanned)
 	}
 
 	numberOfScannerProcesses := int(math.Max(float64(runtime.NumCPU()-1), 1))
-	log(options.silent, "start "+fmt.Sprint(numberOfScannerProcesses)+" processes to scan for credentials")
+	logMessage(options.silent, "start "+fmt.Sprint(numberOfScannerProcesses)+" processes to scan for credentials")
 	outputFormat.Start()
 	scanner.StartScanning(numberOfScannerProcesses)
 
@@ -282,11 +333,11 @@ func main() {
 
 		totalNumberOfFiles := len(fileQueue) + scannedFiles
 
-		logMessage := fmt.Sprintf("running for %v; processed files: %v / %v; remaining time: %v", timeRunning, scannedFiles, totalNumberOfFiles, remainingTime)
-		log(options.silent, logMessage)
+		message := fmt.Sprintf("running for %v; processed files: %v / %v; remaining time: %v", timeRunning, scannedFiles, totalNumberOfFiles, remainingTime)
+		logMessage(options.silent, message)
 	}
 
-	log(options.silent, "finished scanning")
+	logMessage(options.silent, "finished scanning")
 	outputFormat.Finished()
-	log(options.silent, "terminating")
+	logMessage(options.silent, "terminating")
 }

@@ -1,7 +1,9 @@
 package credential_assignments
 
 import (
+	"github.com/wahlflo/credentialer/llms"
 	"github.com/wahlflo/credentialer/pkg/interfaces"
+	"log/slog"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -9,15 +11,22 @@ import (
 )
 
 type CredentialAssignmentDetector struct {
+	llm interfaces.LlmConnector
 }
 
 func NewCredentialAssignmentDetector() *CredentialAssignmentDetector {
-	return &CredentialAssignmentDetector{}
+	return &CredentialAssignmentDetector{
+		llm: nil,
+	}
+}
+
+func (detector *CredentialAssignmentDetector) Inject(llm interfaces.LlmConnector) {
+	detector.llm = llm
 }
 
 func (detector *CredentialAssignmentDetector) Check(output interfaces.OutputFormatter, fileToCheck interfaces.LoadedFile) error {
 	fileExtension := filepath.Ext(fileToCheck.GetFilename())
-	for _, finding := range getFindings(fileExtension, fileToCheck.GetContent()) {
+	for _, finding := range getFindings(fileExtension, fileToCheck.GetContent(), detector.llm) {
 		output.AddFinding(interfaces.FindingInstance{
 			File:                    fileToCheck,
 			Name:                    "Credential Assignments",
@@ -76,7 +85,7 @@ type finding struct {
 	usedRegex    string
 }
 
-func getFindings(fileExtension string, content []byte) []*finding {
+func getFindings(fileExtension string, content []byte, llm interfaces.LlmConnector) []*finding {
 	findings := make([]*finding, 0)
 
 	if fileExtension == ".sample" {
@@ -99,11 +108,39 @@ func getFindings(fileExtension string, content []byte) []*finding {
 				usedRegex:    p.regexExpression.String(),
 			}
 
-			if fineTuningApprovesFinding(fileExtension, f.variableName, f.value) {
-				findings = append(findings, f)
+			if !fineTuningApprovesFinding(fileExtension, f.variableName, f.value) {
+				continue
 			}
+
+			if llm != nil {
+				if approvedByLLM(llm, f, string(content)) {
+					slog.Debug("finding: \"" + f.fullMatch + "\" was approved by LLM")
+				} else {
+					slog.Debug("finding: \"" + f.fullMatch + "\" was NOT approved by LLM")
+					continue
+				}
+			}
+
+			findings = append(findings, f)
 		}
 	}
 
 	return findings
+}
+
+func approvedByLLM(llm interfaces.LlmConnector, finding *finding, fileContent string) bool {
+	scriptExcerpt := llms.GenerateScriptExtractForLlmQuestion(fileContent, finding.value, 300, 300)
+
+	prompt := "Is the value '" + finding.value + "' in the following script a hardcoded cleartext password and not a placeholder or something else?"
+	prompt += llm.GetResponseOutputModifier()
+	prompt += "The script: " + scriptExcerpt
+
+	response, err := llm.GetBooleanResponse(prompt)
+	if err != nil {
+		slog.Warn("received an error when trying to get a response from the LLM:" + err.Error())
+		// in case the LLM is not able to make a decision then approve the finding, to prevent that a real finding
+		// gets ignored
+		return true
+	}
+	return response
 }

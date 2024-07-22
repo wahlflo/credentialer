@@ -1,6 +1,8 @@
 package credential_assignments
 
-import "github.com/wahlflo/credentialer/pkg/detectors/credential_assignments/finetuning"
+import (
+	"github.com/wahlflo/credentialer/pkg/detectors/credential_assignments/finetuning"
+)
 
 func fineTuningApprovesFinding(fileExtension string, variableName string, secretValue string) bool {
 	fineTuningApprover := []func(string, string, string) bool{
@@ -15,5 +17,6 @@ func fineTuningApprovesFinding(fileExtension string, variableName string, secret
 			return false
 		}
 	}
+
 	return true
 }

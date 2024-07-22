@@ -98,23 +98,31 @@ use the ``-help`` flag to view the available parameters:
 ```
 > credentialer.exe -help
 Usage of credentialer.bin:
-  -failed-log string
-        log files, which could not be scanned, to a file
+  -debug
+        displays debug information
+  -failed-logMessage string
+        logMessage files, which could not be scanned, to a file
   -format string
         type of output [text, json, csv], default is text (default "text")
   -help
         shows help information
   -i string
         path to the directory which should be scanned
+  -llm string
+        which large language model should be used for fine tuning, possible options: [none, ollama], default is none (default "none")
   -no-color
         don't use ANSI escape color codes in output
   -o string
         output file where findings will be stored, default is standard output
+  -ollama-sessions int
+        number of concurrent sessions, default is 1 (default 1)
+  -ollama-url string
+        URL of the ollama LLM, default value is http://127.0.0.1:11434 (default "http://127.0.0.1:11434")
   -resume string
         resume scan based on file containing already scanned files
   -s    suppress info messages for a clearer output
-  -success-log string
-        log scanned files to a file, needed to resume a paused scan
+  -success-logMessage string
+        logMessage scanned files to a file, needed when you want to resume a paused scan
 ```
 
 ### Output Formats
@@ -187,6 +195,37 @@ Resume a paused / interrupted scan:
 [+] terminating
 ...
 ```
+
+## Use Ollama to filter out False Positives
+The ``credentialer`` can use a Large Language Model (LLM) to filter out false positives.
+The LLM response can be wrong, which can result in real credentials to be filtered out. 
+The usage requires an additional setup of ollama on the local system (https://ollama.com/).
+
+The easiest way is to use the docker container of ollama. 
+The communication with ollama docker container works through an HTTP api, so you have to expose the API port ``11434`` to the host system:
+
+```sh
+docker run -d -p 11434:11434 --name ollama ollama/ollama
+```
+
+Then pull the desired LLM which should be used (e.g. llama3):
+
+```sh
+docker exec -it ollama ollama pull llama3
+```
+
+The LLM is now ready :smile: 
+
+To advise ``credentialer`` to use it you have to specify the flags ``-llm ollama``.
+
+Example with the default settings:
+```sh
+credentialer.exe -i repo -llm ollama -ollama-sessions 1 -ollama-url "http://127.0.0.1:11434"
+```
+
+**Hint**: the LLM is much master if you can give the docker container access to your GPU. 
+As it depends on your setup if and how this is possible, no explanation will be provided here. 
+
 
 ## Use in the Go Module in your project
 If you want to use the project in your project you can add the module to your project:
