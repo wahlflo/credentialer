@@ -243,6 +243,8 @@ func main() {
 		logMessage(options.silent, "debug messages will be displayed")
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		slog.SetLogLoggerLevel(slog.LevelDebug)
+	} else if options.silent {
+		slog.SetLogLoggerLevel(slog.LevelError)
 	} else {
 		slog.SetLogLoggerLevel(slog.LevelWarn)
 	}
