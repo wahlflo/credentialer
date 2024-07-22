@@ -214,7 +214,7 @@ Then pull the desired LLM which should be used (e.g. llama3):
 docker exec -it ollama ollama pull llama3
 ```
 
-The LLM is now ready :smile: 
+Now, the LLM is ready :smile: 
 
 To advise ``Credentialer`` to use it you have to specify the flags ``-llm ollama``.
 
