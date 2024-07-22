@@ -197,7 +197,7 @@ Resume a paused / interrupted scan:
 ```
 
 ## Use Ollama to filter out False Positives
-The ``credentialer`` can use a Large Language Model (LLM) to filter out false positives.
+The ``Credentialer`` can use a Large Language Model (LLM) to filter out false positives.
 The LLM response can be wrong, which can result in real credentials to be filtered out. 
 The usage requires an additional setup of ollama on the local system (https://ollama.com/).
 
@@ -216,7 +216,7 @@ docker exec -it ollama ollama pull llama3
 
 The LLM is now ready :smile: 
 
-To advise ``credentialer`` to use it you have to specify the flags ``-llm ollama``.
+To advise ``Credentialer`` to use it you have to specify the flags ``-llm ollama``.
 
 Example with the default settings:
 ```sh
