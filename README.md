@@ -100,8 +100,8 @@ use the ``-help`` flag to view the available parameters:
 Usage of credentialer.bin:
   -debug
         displays debug information
-  -failed-logMessage string
-        logMessage files, which could not be scanned, to a file
+  -failed-log string
+        logs files, which could not be scanned, to a file
   -format string
         type of output [text, json, csv], default is text (default "text")
   -help
@@ -123,8 +123,8 @@ Usage of credentialer.bin:
   -resume string
         resume scan based on file containing already scanned files
   -s    suppress info messages for a clearer output
-  -success-logMessage string
-        logMessage scanned files to a file, needed when you want to resume a paused scan
+  -success-log string
+        logs scanned files to a file, needed when you want to resume a paused scan
 ```
 
 ### Output Formats
