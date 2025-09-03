@@ -2,8 +2,9 @@ package credential_assignments
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_getFindings_Case01(t *testing.T) {
@@ -18,6 +19,12 @@ password = 'ABC127'
 password: ABC128
 password:= "ABC129"
 let mut password = String::from("Hallo");		// is picked up by two different expressions
+api_key = "key01"
+apikey = 'key02'
+api key: key03
+api-key := "key04"
+let mut apikey = String::from("key05");
+API_KEY = "KEY06"
 `
 	matches := getFindings("", []byte(testContent), nil)
 
@@ -27,7 +34,7 @@ let mut password = String::from("Hallo");		// is picked up by two different expr
 		fmt.Println("######################")
 	}
 
-	require.Equal(t, 11, len(matches))
+	require.Equal(t, 18, len(matches))
 }
 
 func Test_getFindings_Case02_Rust(t *testing.T) {

@@ -7,7 +7,12 @@ var interestingVariableNames = []string{
 	"pwd",
 	"pass",
 	"passwd",
-	//	"key",		<- generates too many false positives, ToDo: ignore this until Machine Learning model is integrated
+	"apikey",
+	"api key",
+	"api-key",
+	"api_key",
+	"API-ключ", // Russian for API-Key
+	"API ключ", // Russian for API-Key
 	"пароль",   // Russian for password
 	"passwort", // German for password
 }
