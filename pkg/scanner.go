@@ -2,8 +2,9 @@ package pkg
 
 import (
 	"bufio"
-	"github.com/wahlflo/credentialer/pkg/interfaces"
 	"os"
+
+	"github.com/wahlflo/credentialer/pkg/interfaces"
 )
 
 type Scanner struct {
@@ -13,7 +14,7 @@ type Scanner struct {
 	loadedFiles             chan interfaces.LoadedFile
 	output                  interfaces.OutputFormatter
 	detectors               []interfaces.Detector
-	numberOfFiledScanned    safeCounter
+	numberOfFilesScanned    safeCounter
 	numberOfScannersRunning safeCounter
 	llm                     interfaces.LlmConnector
 }
@@ -55,7 +56,7 @@ func (scanner *Scanner) AddDetector(detector interfaces.Detector) {
 // StartScanning starts the scanning routine.
 func (scanner *Scanner) StartScanning(numberOfParallelScanners int) {
 	scanner.injectLargeLanguageModelIntoScanner()
-	scanner.numberOfFiledScanned.Set(0)
+	scanner.numberOfFilesScanned.Set(0)
 	go scanner.preloadFilesLoop()
 	scanner.startScanLoops(numberOfParallelScanners)
 }
@@ -104,7 +105,7 @@ func (scanner *Scanner) scanLoop() {
 		}
 
 		scanner.scanFile(loadedFile)
-		scanner.numberOfFiledScanned.Increment()
+		scanner.numberOfFilesScanned.Increment()
 		if scanner.scannedFiles != nil {
 			scanner.scannedFiles <- loadedFile.GetFilepath()
 		}
@@ -124,7 +125,7 @@ func (scanner *Scanner) IsRunning() bool {
 
 // GetNumberOfFilesScanned returns the number of files which were already scanned
 func (scanner *Scanner) GetNumberOfFilesScanned() int {
-	return int(scanner.numberOfFiledScanned.GetValue())
+	return int(scanner.numberOfFilesScanned.GetValue())
 }
 
 func readBinaryFile(filename string) ([]byte, error) {
