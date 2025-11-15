@@ -6,7 +6,7 @@ toolchain go1.24.10
 
 require (
 	github.com/fatih/color v1.18.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.44.0
 )
 
