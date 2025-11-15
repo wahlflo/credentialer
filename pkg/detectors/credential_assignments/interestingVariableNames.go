@@ -14,6 +14,7 @@ var interestingVariableNames = []string{
 	"API-ключ", // Russian for API-Key
 	"API ключ", // Russian for API-Key
 	"пароль",   // Russian for password
+	"parol",    // Russian for password in latin letters
 	"секрет",   // Russian for secret
 	"passwort", // German for password
 }
