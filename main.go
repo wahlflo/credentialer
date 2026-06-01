@@ -4,12 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/wahlflo/credentialer/llms"
-	"github.com/wahlflo/credentialer/pkg"
-	"github.com/wahlflo/credentialer/pkg/detectors"
-	"github.com/wahlflo/credentialer/pkg/interfaces"
-	"github.com/wahlflo/credentialer/pkg/output_formatters"
 	"io/fs"
 	"log"
 	"log/slog"
@@ -19,6 +13,13 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
+	"github.com/wahlflo/credentialer/llms"
+	"github.com/wahlflo/credentialer/pkg"
+	"github.com/wahlflo/credentialer/pkg/detectors"
+	"github.com/wahlflo/credentialer/pkg/interfaces"
+	"github.com/wahlflo/credentialer/pkg/output_formatters"
 )
 
 type appOptions struct {
@@ -335,14 +336,19 @@ func main() {
 
 		timeRunning := time.Now().Sub(startTime)
 		scannedFiles := scanner.GetNumberOfFilesScanned()
-
-		secondsPerFile := timeRunning.Seconds() / float64(scannedFiles)
-		remainingTimeInMilliseconds := float64(len(fileQueue)) * secondsPerFile
-		remainingTime := time.Second * time.Duration(remainingTimeInMilliseconds)
-
 		totalNumberOfFiles := len(fileQueue) + scannedFiles
 
-		message := fmt.Sprintf("running for %v; processed files: %v / %v; remaining time: %v", timeRunning, scannedFiles, totalNumberOfFiles, remainingTime)
+		var remainingTime string
+
+		if scannedFiles == 0 {
+			remainingTime = "unknown"
+		} else {
+			secondsPerFile := timeRunning.Seconds() / float64(scannedFiles)
+			remainingTimeInMilliseconds := float64(len(fileQueue)) * secondsPerFile
+			remainingTimeInSeconds := time.Second * time.Duration(remainingTimeInMilliseconds)
+			remainingTime = remainingTimeInSeconds.String()
+		}
+		message := fmt.Sprintf("running for %v; processed files: %v / %v; remaining time: %s", timeRunning, scannedFiles, totalNumberOfFiles, remainingTime)
 		logMessage(options.silent, message)
 	}
 
