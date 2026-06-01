@@ -1,8 +1,9 @@
 package interesting_file_names
 
 import (
-	"github.com/wahlflo/credentialer/pkg/interfaces"
 	"regexp"
+
+	"github.com/wahlflo/credentialer/pkg/interfaces"
 )
 
 func loadDefaultPatterns() []Pattern {
@@ -16,7 +17,7 @@ func loadDefaultPatterns() []Pattern {
 
 	patterns = append(patterns, &pattern{
 		regexPattern: regexp.MustCompile("\\.secret$"),
-		fileType:     "File with extension .key containing maybe sensitive information",
+		fileType:     "File with extension .secret containing maybe sensitive information",
 		priority:     interfaces.FindingPriorityHigh,
 	})
 
@@ -51,8 +52,8 @@ func loadDefaultPatterns() []Pattern {
 	})
 
 	patterns = append(patterns, &pattern{
-		regexPattern: regexp.MustCompile("\\.htaaccess$"),
-		fileType:     "File with extension .htaaccess$ containing maybe sensitive information",
+		regexPattern: regexp.MustCompile("\\.htaccess$"),
+		fileType:     "File with extension .htaccess$ containing maybe sensitive information",
 		priority:     interfaces.FindingPriorityLow,
 	})
 

@@ -30,7 +30,9 @@ func getCharacterStatistics(value string) *characterStatistics {
 	countPerCharacter := make(map[rune]int)
 	observedSpecialCharacters := make(map[rune]struct{})
 
+	totalNumberOfCharacters := 0
 	for _, char := range value {
+		totalNumberOfCharacters += 1
 		switch {
 		case unicode.IsLower(char):
 			lowerCase++
@@ -55,7 +57,7 @@ func getCharacterStatistics(value string) *characterStatistics {
 		countOfUpperCaseCharacters:            upperCase,
 		countOfNumberCharacters:               numbers,
 		countOfSpecialCharacters:              specialChars,
-		totalNumberOfCharacters:               len(value),
+		totalNumberOfCharacters:               totalNumberOfCharacters,
 		countPerCharacter:                     countPerCharacter,
 		numberOfDifferentObservedSpecialChars: len(observedSpecialCharacters),
 	}
