@@ -52,8 +52,8 @@ func loadDefaultPatterns() []Pattern {
 	})
 
 	patterns = append(patterns, &pattern{
-		regexPattern: regexp.MustCompile("\\.htaaccess$"),
-		fileType:     "File with extension .htaaccess$ containing maybe sensitive information",
+		regexPattern: regexp.MustCompile("\\.htaccess$"),
+		fileType:     "File with extension .htaccess$ containing maybe sensitive information",
 		priority:     interfaces.FindingPriorityLow,
 	})
 
