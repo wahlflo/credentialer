@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"bufio"
+	"io"
 	"os"
 
 	"github.com/wahlflo/credentialer/pkg/interfaces"
@@ -135,16 +135,5 @@ func readBinaryFile(filename string) ([]byte, error) {
 	}
 	defer file.Close()
 
-	stats, statsErr := file.Stat()
-	if statsErr != nil {
-		return nil, statsErr
-	}
-
-	var size = stats.Size()
-	bytes := make([]byte, size)
-
-	buffer := bufio.NewReader(file)
-	_, err = buffer.Read(bytes)
-
-	return bytes, err
+	return io.ReadAll(file)
 }
